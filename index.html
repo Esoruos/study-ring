@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0f172a">
+<title>Study Ring</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:linear-gradient(160deg,#0f172a,#1e1b4b);color:#f1f5f9;min-height:100vh;padding:20px 16px 40px}
+  .wrap{max-width:440px;margin:0 auto}
+  h1{font-size:22px;text-align:center;margin-bottom:4px}
+  .sub{text-align:center;color:#94a3b8;font-size:14px;margin-bottom:20px}
+  .screen{display:none}.screen.active{display:block}
+  .block{background:#1e293b;border:1px solid #334155;border-radius:18px;padding:20px;margin-bottom:12px;cursor:pointer;display:flex;justify-content:space-between;align-items:center}
+  .block:active{transform:scale(.98)}
+  .block .name{font-size:18px;font-weight:600}.block .meta{color:#94a3b8;font-size:13px;margin-top:4px}
+  .block .pct{font-size:22px;font-weight:700;color:#a78bfa}
+  .back{background:none;border:none;color:#a78bfa;font-size:15px;margin-bottom:10px;cursor:pointer}
+  .ringbox{position:relative;width:260px;height:260px;margin:10px auto 6px}
+  .ringbox svg{transform:rotate(-90deg)}
+  .center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .center .big{font-size:46px;font-weight:800}
+  .center .small{color:#94a3b8;font-size:14px;margin-top:2px}
+  .level{text-align:center;margin:8px 0 18px;font-size:15px}
+  .level b{color:#fbbf24}
+  .bar{height:8px;background:#334155;border-radius:8px;overflow:hidden;margin-top:6px}
+  .bar div{height:100%;background:#fbbf24;transition:width .6s}
+  .btns{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px}
+  .btns button{padding:18px 0;border-radius:16px;border:none;font-size:18px;font-weight:700;color:white;background:linear-gradient(135deg,#7c3aed,#db2777);cursor:pointer}
+  .btns button:active{transform:scale(.95)}
+  .card{background:#1e293b;border:1px solid #334155;border-radius:16px;padding:14px 16px;margin-bottom:12px}
+  .card h3{font-size:14px;color:#94a3b8;font-weight:600;margin-bottom:8px}
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);text-align:center}
+  .stats .v{font-size:20px;font-weight:700}.stats .l{font-size:12px;color:#94a3b8}
+  .badges{display:flex;flex-wrap:wrap;gap:8px}
+  .badge{font-size:13px;padding:6px 10px;border-radius:20px;background:#0f172a;border:1px solid #334155;color:#64748b}
+  .badge.on{border-color:#fbbf24;color:#fbbf24}
+  .hist{max-height:200px;overflow:auto;font-size:14px}
+  .hist div{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #334155}
+  .undo{background:none;border:1px solid #475569;color:#cbd5e1;border-radius:10px;padding:8px 12px;font-size:13px;margin-top:10px;cursor:pointer}
+  .modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;padding:20px;z-index:10}
+  .modal.show{display:flex}
+  .dialog{background:#1e293b;border-radius:20px;padding:24px;width:100%;max-width:340px;text-align:center}
+  .dialog p{font-size:17px;margin-bottom:20px}
+  .dialog .row{display:flex;gap:10px}
+  .dialog button{flex:1;padding:14px;border-radius:12px;border:none;font-size:16px;font-weight:600;cursor:pointer}
+  .ok{background:#22c55e;color:#fff}.no{background:#334155;color:#e2e8f0}
+  .toast{position:fixed;left:50%;bottom:30px;transform:translateX(-50%) translateY(100px);background:#fbbf24;color:#1e1b4b;font-weight:700;padding:12px 18px;border-radius:14px;transition:transform .4s;z-index:20;text-align:center;max-width:90%}
+  .toast.show{transform:translateX(-50%) translateY(0)}
+  .quote{text-align:center;color:#c4b5fd;font-style:italic;font-size:14px;margin-bottom:16px;min-height:20px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div id="home" class="screen active">
+    <h1>📚 Study Ring</h1>
+    <p class="sub">Pick a block and start filling your ring</p>
+    <div id="blocks"></div>
+  </div>
+
+  <div id="detail" class="screen">
+    <button class="back" onclick="show('home')">‹ Back</button>
+    <h1 id="dName"></h1>
+    <p class="sub" id="dGoal"></p>
+    <div class="ringbox">
+      <svg width="260" height="260" viewBox="0 0 260 260">
+        <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#a78bfa"/><stop offset="100%" stop-color="#f472b6"/></linearGradient></defs>
+        <circle cx="130" cy="130" r="112" stroke="#334155" stroke-width="20" fill="none"/>
+        <circle id="arc" cx="130" cy="130" r="112" stroke="url(#g)" stroke-width="20" fill="none" stroke-linecap="round" stroke-dasharray="703.7" stroke-dashoffset="703.7" style="transition:stroke-dashoffset 1s ease"/>
+      </svg>
+      <div class="center"><div class="big" id="pct">0%</div><div class="small" id="hrs">0 / 100 h</div></div>
+    </div>
+    <div class="level"><span id="lvl"></span><div class="bar"><div id="lvlbar"></div></div></div>
+    <p class="quote" id="quote"></p>
+    <div class="btns">
+      <button onclick="ask(30)">30 min</button>
+      <button onclick="ask(60)">60 min</button>
+      <button onclick="ask(90)">90 min</button>
+    </div>
+    <div class="card"><h3>Stats</h3><div class="stats">
+      <div><div class="v" id="sToday">0</div><div class="l">today (min)</div></div>
+      <div><div class="v" id="sStreak">0</div><div class="l">day streak 🔥</div></div>
+      <div><div class="v" id="sLeft">100</div><div class="l">hours left</div></div>
+    </div></div>
+    <div class="card"><h3>Badges</h3><div class="badges" id="badges"></div></div>
+    <div class="card"><h3>History</h3><div class="hist" id="hist"></div><button class="undo" onclick="undo()">Undo last session</button></div>
+  </div>
+</div>
+
+<div class="modal" id="modal"><div class="dialog">
+  <p id="mText"></p>
+  <div class="row"><button class="no" onclick="closeM()">Cancel</button><button class="ok" onclick="confirmAdd()">Yes, add it ✓</button></div>
+</div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const BLOCKS=[{id:"macro",name:"Macroeconomics",emoji:"📈",goal:100}];
+const KEY="studyRing_v1";
+let data=JSON.parse(localStorage.getItem(KEY)||"{}");
+BLOCKS.forEach(b=>{if(!data[b.id])data[b.id]={sessions:[]}});
+let cur=null,pending=0;
+const LEVELS=[[0,"Beginner 🌱"],[10,"Getting Started 📖"],[25,"Focused 🎯"],[50,"Halfway Hero ⚡"],[75,"Exam Warrior 🛡️"],[90,"Almost There 🚀"],[100,"Macro Master 🏆"]];
+const BADGES=[["First session",s=>s.length>=1],["5 hours",(s,h)=>h>=5],["10 hours",(s,h)=>h>=10],["25%",(s,h,p)=>p>=25],["50%",(s,h,p)=>p>=50],["75%",(s,h,p)=>p>=75],["100% 🏆",(s,h,p)=>p>=100],["3-day streak",()=>streak()>=3],["7-day streak",()=>streak()>=7],["3h in one day",()=>todayMin()>=180]];
+const QUOTES=["Every 30 minutes counts. Let's go!","Small steps, big exam results.","Future you says thank you.","Consistency beats intensity.","You two got this! 💪","One more block and the ring grows."];
+const save=()=>localStorage.setItem(KEY,JSON.stringify(data));
+const mins=id=>data[id].sessions.reduce((a,s)=>a+s.m,0);
+const dayKey=t=>new Date(t).toDateString();
+function todayMin(){return data[cur].sessions.filter(s=>dayKey(s.t)===new Date().toDateString()).reduce((a,s)=>a+s.m,0)}
+function streak(){const days=new Set(data[cur].sessions.map(s=>dayKey(s.t)));let d=new Date(),n=0;if(!days.has(d.toDateString()))d.setDate(d.getDate()-1);while(days.has(d.toDateString())){n++;d.setDate(d.getDate()-1)}return n}
+function show(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));document.getElementById(id).classList.add("active");if(id==="home")renderHome()}
+function renderHome(){document.getElementById("blocks").innerHTML=BLOCKS.map(b=>{const h=mins(b.id)/60,p=Math.min(100,h/b.goal*100);return `<div class="block" onclick="open_('${b.id}')"><div><div class="name">${b.emoji} ${b.name}</div><div class="meta">${h.toFixed(1)} of ${b.goal} hours</div></div><div class="pct">${Math.floor(p)}%</div></div>`}).join("")}
+function open_(id){cur=id;const b=BLOCKS.find(x=>x.id===id);document.getElementById("dName").textContent=b.emoji+" "+b.name;document.getElementById("dGoal").textContent="Goal: "+b.goal+" hours = 100%";document.getElementById("quote").textContent=QUOTES[Math.floor(Math.random()*QUOTES.length)];show("detail");render()}
+function render(){const b=BLOCKS.find(x=>x.id===cur),s=data[cur].sessions,h=mins(cur)/60,p=Math.min(100,h/b.goal*100);
+ document.getElementById("arc").style.strokeDashoffset=703.7*(1-p/100);
+ document.getElementById("pct").textContent=Math.floor(p)+"%";
+ document.getElementById("hrs").textContent=(+h.toFixed(1))+" / "+b.goal+" h";
+ let li=0;LEVELS.forEach((l,i)=>{if(p>=l[0])li=i});const nx=LEVELS[li+1];
+ document.getElementById("lvl").innerHTML="Level "+(li+1)+": <b>"+LEVELS[li][1]+"</b>"+(nx?" · next at "+nx[0]+"%":"");
+ document.getElementById("lvlbar").style.width=(nx?(p-LEVELS[li][0])/(nx[0]-LEVELS[li][0])*100:100)+"%";
+ document.getElementById("sToday").textContent=todayMin();
+ document.getElementById("sStreak").textContent=streak();
+ document.getElementById("sLeft").textContent=Math.max(0,+(b.goal-h).toFixed(1));
+ document.getElementById("badges").innerHTML=BADGES.map(([n,f])=>`<span class="badge ${f(s,h,p)?"on":""}">${n}</span>`).join("");
+ document.getElementById("hist").innerHTML=s.slice().reverse().map(x=>`<div><span>${new Date(x.t).toLocaleString([], {weekday:"short",day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"})}</span><b>+${x.m} min</b></div>`).join("")||'<div><span style="color:#64748b">Your sessions will show up here</span></div>'}
+function ask(m){pending=m;document.getElementById("mText").textContent=`Add ${m} minutes of studying to ${BLOCKS.find(x=>x.id===cur).name}?`;document.getElementById("modal").classList.add("show")}
+function closeM(){document.getElementById("modal").classList.remove("show")}
+function confirmAdd(){const b=BLOCKS.find(x=>x.id===cur),before=Math.floor(mins(cur)/60/b.goal*100);data[cur].sessions.push({m:pending,t:Date.now()});save();closeM();render();
+ const after=Math.floor(mins(cur)/60/b.goal*100);let msg=`+${pending} min! Nice work 🎉`;
+ [25,50,75,100].forEach(x=>{if(before<x&&after>=x)msg=x===100?"🏆 100%! You did it!":`🎉 You hit ${x}%!`});toast(msg)}
+function undo(){if(!data[cur].sessions.length)return;if(confirm("Remove the last session?")){data[cur].sessions.pop();save();render()}}
+function toast(t){const e=document.getElementById("toast");e.textContent=t;e.classList.add("show");setTimeout(()=>e.classList.remove("show"),2200)}
+renderHome();
+</script>
+</body>
+</html>
