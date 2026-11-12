@@ -30,7 +30,7 @@ const TOPIC="eyas-love-70e8f0ebc0c8";
 const MSG=[["I miss you ❤️","heart"],["Thinking of you 💭","thought_balloon"],["Call me 📞","telephone_receiver"]];
 let busy=false;
 async function send(i){if(busy)return;busy=true;const st=document.getElementById("st");st.textContent="Sending…";
-try{const r=await fetch("https://ntfy.sh/"+TOPIC,{method:"POST",body:MSG[i][0],headers:{"Title":"From your girlfriend 💕","Tags":MSG[i][1],"Priority":"high"}});
+try{const r=await fetch("https://ntfy.sh/"+TOPIC+"?title="+encodeURIComponent("From your girlfriend 💕")+"&tags="+MSG[i][1]+"&priority=high",{method:"POST",body:MSG[i][0]});
 if(!r.ok)throw 0;st.textContent="Sent! 💕";const b=document.getElementById("b0");b.classList.remove("pulse");void b.offsetWidth;b.classList.add("pulse");if(navigator.vibrate)navigator.vibrate(80)}
 catch(e){st.textContent="Didn't send, check internet and try again"}
 setTimeout(()=>{busy=false},1500);setTimeout(()=>{if(st.textContent.startsWith("Sent"))st.textContent=""},3000)}
