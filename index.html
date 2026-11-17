@@ -67,7 +67,7 @@
         <circle cx="130" cy="130" r="112" stroke="#334155" stroke-width="20" fill="none"/>
         <circle id="arc" cx="130" cy="130" r="112" stroke="url(#g)" stroke-width="20" fill="none" stroke-linecap="round" stroke-dasharray="703.7" stroke-dashoffset="703.7" style="transition:stroke-dashoffset 1s ease"/>
       </svg>
-      <div class="center"><div class="big" id="pct">0%</div><div class="small" id="hrs">0 / 100 h</div></div>
+      <div class="center"><div class="big" id="pct">0%</div><div class="small" id="hrs">0 / 20 h</div></div>
     </div>
     <div class="level"><span id="lvl"></span><div class="bar"><div id="lvlbar"></div></div></div>
     <p class="quote" id="quote"></p>
@@ -79,7 +79,7 @@
     <div class="card"><h3>Stats</h3><div class="stats">
       <div><div class="v" id="sToday">0</div><div class="l">today (min)</div></div>
       <div><div class="v" id="sStreak">0</div><div class="l">day streak 🔥</div></div>
-      <div><div class="v" id="sLeft">100</div><div class="l">hours left</div></div>
+      <div><div class="v" id="sLeft">20</div><div class="l">hours left</div></div>
     </div></div>
     <div class="card"><h3>History</h3><div class="hist" id="hist"></div><button class="undo" onclick="undo()">Undo last session</button></div>
   </div>
@@ -92,7 +92,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
-const BLOCKS=[{id:"macro",name:"Macroeconomics",emoji:"📈",goal:100},{id:"fin",name:"Finanzierung & Invest",emoji:"💰",goal:100}];
+const BLOCKS=[{id:"macro",name:"Macroeconomics",emoji:"📈",goal:20},{id:"fin",name:"Finanzierung & Invest",emoji:"💰",goal:20},{id:"pm",name:"Personal Management",emoji:"👥",goal:20}];
 const KEY="studyRing_v1";
 let data=JSON.parse(localStorage.getItem(KEY)||"{}");
 BLOCKS.forEach(b=>{if(!data[b.id])data[b.id]={sessions:[]}});
